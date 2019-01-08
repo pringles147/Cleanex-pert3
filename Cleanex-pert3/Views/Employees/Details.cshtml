@@ -1,0 +1,135 @@
+﻿@model Cleanex_pert3.Employees
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Information om anställd</h2>
+
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.FirstName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.FirstName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.LastName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.LastName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.JobTitle)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.JobTitle)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Phone1)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Phone1)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.StartDate)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.StartDate)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.EmployPercentage)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.EmployPercentage)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.OnVacation)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.OnVacation)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Email)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Email)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Salary)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Salary)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Born)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Born)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Gender)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Gender)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Photo)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Photo)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Ändra", "Edit", new { id = Model.EmployeeID }, new { @class = "btn btn-info" }) |
+    @Html.ActionLink("Ta bort", "Delete", new { id = Model.EmployeeID }, new { @class = "btn btn-danger btn-sm" }) |
+    @Html.ActionLink("Gå tillbaka", "Index", null, new { @class = "btn btn-danger" })
+</p>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $.ajax({
+            type: "GET",
+            url: "/Missions/GetEmployees", /*hämtar namn på anställda och gör Resources av de*/
+            success: function (data) {
+                $.each(data, function (i, v) {
+                    resources.push({
+                        id: v.FirstName,
+                        title: v.FirstName
+                    });
+                })
+                FetchEventAndRenderCalendar();
+            },
+            error: function (error) {
+                alert('Resources gick inte att hämta!');
+            }
+        })
+
+    })
+</script>

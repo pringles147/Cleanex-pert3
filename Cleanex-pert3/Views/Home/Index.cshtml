@@ -1,0 +1,30 @@
+﻿@{
+    ViewBag.Title = "Stadexperten";
+}
+
+<div class="jumbotron">
+    <h1>The Clean X-Pert</h1>
+    <p class="lead">The Clean X-Pert är utformad för att underlätta hanteringen av anställda i företaget och för att enkelt kunna ordna deras arbetsuppdrag.</p>
+    <p></p>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <h2>Hur börjar man?</h2>
+        <p>
+            Första steget är att lägga till en anställd.<br />
+            Klicka på "Lägg till anställd" för att komma igång.
+        </p>
+        <p><a class="btn btn-primary" href="@Url.Action("Create", "Employees")">Lägg till anställd &raquo;</a></p>
+    </div>
+    <div class="col-md-4">
+        <h2>Se en lista på kunder</h2>
+        <p>Här kan du se en lista på kunder som redan finns.</p>
+        <p><a class="btn btn-success" href="@Url.Action("Index", "Clients")">Kunder &raquo;</a></p>
+    </div>
+    <div class="col-md-4">
+        <h2>Se uppdrag</h2>
+        <p>Här kan du skapa och delegera uppdrag åt de anställda.</p>
+        <p><a class="btn btn-info" href="@Url.Action("Index", "Missions")">Uppdrag &raquo;</a></p>
+    </div>
+</div>

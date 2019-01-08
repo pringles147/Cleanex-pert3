@@ -1,0 +1,146 @@
+﻿@model Cleanex_pert3.Missions
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Missions</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Title)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Title)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Address)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Address)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Longitude)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Longitude)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Latitude)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Latitude)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ParkingZone)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ParkingZone)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.FieldOfWork)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.FieldOfWork)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Tools)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Tools)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.JobDescription)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.JobDescription)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.KeyNr)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.KeyNr)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.StartTime)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.StartTime)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.EndTime)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.EndTime)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Partner)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Partner)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Comments)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Comments)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.IsFullDay)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.IsFullDay)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Extra1)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Extra1)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Extra2)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Extra2)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.MissionID }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

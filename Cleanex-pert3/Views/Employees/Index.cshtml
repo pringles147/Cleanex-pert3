@@ -1,0 +1,33 @@
+﻿@model IEnumerable<Cleanex_pert3.Employees>
+
+@{
+    ViewBag.Title = "Index";
+}
+<header>
+    <h2>Anställda</h2>
+</header>
+
+
+
+@Html.ActionLink("Lägg till anställd", "Create", null, new { @class = "btn btn-primary" })
+
+
+<nav>
+    @foreach (var item in Model)
+    {
+        <a href="@Url.Action("Details", "Employees", new { id=item.EmployeeID })" class="profiles btn">
+            <div class="fakepic">
+            </div><br />
+            @Html.DisplayFor(modelItem => item.FirstName)<br />
+            @Html.DisplayFor(modelItem => item.JobTitle)<br />
+        </a>
+    }
+    @*<tr>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
+                @Html.ActionLink("Details", "Details", new { id=item.Id }) |
+                @Html.ActionLink("Delete", "Delete", new { id=item.Id })
+            </td>
+        </tr>*@
+</nav>
+

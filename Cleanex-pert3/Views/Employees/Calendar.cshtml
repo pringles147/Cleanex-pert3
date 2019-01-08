@@ -1,0 +1,532 @@
+﻿@model IEnumerable<Cleanex_pert3.Employees>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+@*Modal-ruta när man klickar på ett uppdrag/Event*@
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"><span id="eventTitle"></span></h4>
+            </div>
+            <div class="modal-body">
+                <p id="pDetails"></p>
+
+            </div>
+
+            @*Footer med knapparna "Stäng", "Ändra" och "Radera" ang uppdraget*@
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger pull-right" data-dismiss="modal">Stäng</button>
+                <button id="btnDelete" class="btn btn-danger btn-sm pull-left" style="margin-right:5px;">
+                    <span class="glyphicon glyphicon-remove"></span> Radera
+                </button>
+                <button id="btnEdit" class="btn btn-info btn-sm pull-left">
+                    <span class="glyphicon glyphicon-pencil"></span> Ändra
+                </button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@*Modal för att ändra information i uppdraget*@
+<div id="myModalSave" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Spara uppdrag</h4>
+            </div>
+
+            @*Formulär för fylla i subject om uppdraget*@
+            <div class="modal-body">
+                <form class="col-md-12 form-horizontal">
+                    <input type="hidden" id="hdEventID" value="0" />
+                    <div class="form-group">
+                        <label>Ämne</label>
+                        <input type="text" id="txtSubject" class="form-control" />
+                    </div>
+
+                    @*Sätta Start tiden*@
+                    <div class="form-group">
+                        <label>Start-tid</label>
+                        <div class="input-group date" id="dtp1">
+                            <input type="text" id="txtStart" class="form-control" />
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+
+                    @*Checkbox för Heldags händelser*@
+                    <div class="form-group">
+                        <div class="checkbox">
+                            <label><input type="checkbox" id="chkIsFullDay" />Heldag</label>
+                        </div>
+
+                    </div>
+
+                    @*Sätta Slut tiden*@
+                    <div class="form-group" id="divEndDate">
+                        <label>Slut-tid</label>
+                        <div class="input-group date" id="dtp2">
+                            <input type="text" id="txtStop" class="form-control" />
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                    @*Beskrvinings-fält*@
+                    <div class="form-group">
+                        <label>Beskrivning</label>
+                        <textarea id="txtDescription" rows="3" class="form-control"></textarea>
+                    </div>
+
+                    @*Ändrar färg för olika typer av arbeten*@
+                    <div class="form-group">
+                        <label>Arbets-typ</label>
+                        <select id="ddThemeColor" class="form-control">
+                            <option value="Blue">F.skötsel</option>
+                            <option value="Green">Trädgård</option>
+                            <option value="Red">Städ</option>
+                            <option value="Grey">Övrigt</option>
+                        </select>
+                    </div>
+                    @*Vilken arbetare som uppdraget gäller*@
+                    <div class="form-group">
+                        <label>Arbetare</label>
+                        <select id="ddWorker" class="form-control">
+                            @foreach (var item in Model)
+                            {
+                                <option value="@Html.DisplayFor(modelItem => item.EmployeeID)">@Html.DisplayFor(modelItem => item.FirstName)</option>
+                            }
+
+                        </select>
+                    </div>
+
+
+                    <button type="button" id="btnSave" class="btn btn-success">Spara</button>
+                    <button type="button" class="btn btn-danger pull-right" data-dismiss="modal">Stäng</button>
+                </form>
+            </div>
+
+            @*Modal-footer*@
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+
+
+@section scripts{
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            /* initialize the external events
+-----------------------------------------------------------------*/
+
+
+            var events = []; // Uppdragen
+            var resources = []; // Anställda
+            var selectedEvent = null;
+            FetchResources(); // Hämta anställda
+            // FetchEventAndRenderCalendar();
+            // Hämta uppdrag och generera kalendern
+
+
+
+
+                // Skapar Resource-objekt av anställdas namn
+            function FetchResources() {
+                resources = [];
+                $.ajax({
+                    type: "GET",
+                    url: "/Employees/GetEmployees", /*hämtar namn på anställda och gör Resources av de*/
+                    success: function (data) {
+                        $.each(data, function (i, v) {
+                            resources.push({
+                                id: v.EmployeeID,
+                                title: v.FirstName
+                            });
+                        })
+                        FetchEventAndRenderCalendar();
+                    },
+                    error: function (error) {
+                        alert('Resources gick inte att hämta!');
+                    }
+                })
+            }
+
+
+                // Kod för att hämta uppdrag/events och rendera kalendern
+            function FetchEventAndRenderCalendar() {
+                events = [];
+                // Hämtar uppdragen från databasen
+                $.ajax({
+                    type: "GET",
+                    url: "/Missions/GetEvents", /*hämtar uppdragen från databasen*/
+                    success: function (data) {
+                        $.each(data, function (i, v) {
+                            events.push({
+                                eventID: v.MissionID,
+                                title: v.Title,
+                                description: v.JobDescription,
+                                start: moment(v.StartTime),
+                                end: v.EndTime != null ? moment(v.EndTime) : null,
+                                color: v.FieldOfWork,
+                                allday: v.IsFullDay,
+                                resourceId: v.Partner
+                            });
+                        })
+                        // Genererar resource-view av anställda
+                        // och fyller kalendern med uppdrag
+                        GenerateCalendar(events);
+                    },
+                    error: function (error) {
+                        alert('Någe gick galet!');
+                    }
+                })
+            }
+
+
+
+            // Gör det möjligt att dra/släppa event i kalendern
+            $('#external-events .fc-event').each(function () {
+
+                // store data so the calendar knows to render an event upon drop
+                $(this).data('event', {
+                    title: $.trim($(this).text()), // use the element's text as the event title
+                    stick: true // maintain when user navigates (see docs on the renderEvent method)
+                });
+
+                // Använder jQuery UI för att dra/släppa events
+                $(this).draggable({
+                    zIndex: 999,
+                    revert: true,      // will cause the event to go back to its
+                    revertDuration: 0  //  original position after the drag
+                });
+
+            });
+
+                    //Fullcalendar kod
+            function GenerateCalendar(events) {
+                $('#calendar').fullCalendar('destroy');
+                $('#calendar').fullCalendar({
+                    
+                    // 'B'
+                    businessHours: {
+                            start: '07:00', // Gråmarkerar all annan tid förutom arbetstimmarna
+                            end: '15:30',
+                        },
+
+                    // 'C'
+                    contentHeight: "auto",
+
+                    // 'D'
+                    dayNames: ['Söndag', 'Måndag', 'Tisdag', 'Onsdag',
+                        'Torsdag', 'Fredag', 'Lördag'],
+                    dayNamesShort: ['Sön', 'Mån', 'Tis', 'Ons', 'Tors', 'Fre', 'Lör'],
+                    defaultDate: new Date(),
+                    defaultView: 'agendaDay',
+                    drop: function (date, jsEvent, ui, resourceId) { // När externa events dras in på kalendern
+                        console.log('drop', date.format(), resourceId);
+
+                        // is the "remove after drop" checkbox checked?
+                        if ($('#drop-remove').is(':checked')) {
+                            // if so, remove the element from the "Draggable Events" list
+                            $(this).remove();
+                        }
+                    },
+                    droppable: true, // Tillåter att man lägger till externa events i kalendern
+
+                    // 'E'
+                    editable: true, // Gör så man kan ändra tiden genom att klicka och dra i eventsen
+                    events: events,
+                    eventClick: function (calEvent, jsEvent, view) {
+                        selectedEvent = calEvent;
+                        $('#myModal #eventTitle').text(calEvent.title);
+                        var $description = $('<div/>');
+                        $description.append($('<p/>').html('<b>Start:</b>' + calEvent.start.format("DD-MMM-YYYY HH:mm a")));
+                        if (calEvent != null) {
+                            $description.append($('<p/>').html('<b>End:</b>' + calEvent.end.format("DD-MMM-YYYY HH:mm a")));
+                        }
+                        $description.append($('<p/>').html('<b>Description:</b>' + calEvent.description));
+                        $('#myModal #pDetails').empty().html($description);
+                        $('#myModal').modal();
+                    },
+                    eventColor: '#378006',
+
+                    // När ett event (som redan finns) flyttas till annan tid/plats
+                    eventDrop: function (event, delta, revertFunc, jsEvent, ui, view) { 
+                        var data = {
+                            MissionID: event.eventID,
+                            Title: event.title,
+                            StartTime: event.start.format('DD/MM/YYYY HH:mm'),
+                            EndTime: event.end != null ? event.end.format('DD/MM/YYYY HH:mm') : null,
+                            JobDescription: event.description,
+                            FieldOfWork: event.color,
+                            IsFullDay: event.allday,
+                            Partner: event.resourceId
+                        };
+                        SaveEvent(data);
+                    },
+                    eventLimit: true,
+                    eventReceive: function (event) { // called when a proper external event is dropped
+                        console.log('eventReceive', event);
+                        var data = {
+                            MissionID: event.eventID,
+                            Title: event.title,
+                            StartTime: event.start.format('DD/MM/YYYY HH:mm'),
+                            EndTime: event.end != null ? event.end.format('DD/MM/YYYY HH:mm') : null,
+                            JobDescription: event.description,
+                            FieldOfWork: event.color,
+                            IsFullDay: event.allday,
+                            Partner: event.resourceId
+                        };
+                        SaveEvent(data);
+                    },
+
+                    // 'F'
+                    forceEventDuration: true,
+
+                    // 'G'
+                    groupByDateAndResource: true,
+
+                    // 'H'
+                    header: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'agendaDay,agendaWeek,month'
+                    },
+
+                    // 'M'
+                    minTime: "07:00:00", // Vilka tider som kalender visar
+                    maxTime: "16:30:00",
+
+                    // 'R'
+                    resources: resources,
+
+                    // 'S'
+                    schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
+                    selectable: true,
+                    select: function (start, end, jsEvent, view, resource) {
+                        selectedEvent = {
+                            eventID: 0,
+                            title: '',
+                            description: '',
+                            start: start,
+                            end: end,
+                            allday: false,
+                            color: '',
+                            resourceId: resource.id
+                        }
+
+                        
+                        openAddEditForm();
+                        $('#calendar').fullCalendar('unselect');
+                    },
+                    slotLabelFormat: 'H(:mm)',
+
+
+                    // 'T'
+                    timeFormat: 'H(:mm)',
+
+                    // 'W'
+                    weekends: false // Visa eller dölj helgdagar
+                    
+                })
+
+                    // Kod för att ändra uppdraget/eventet
+                $('#btnEdit').click(function () {
+                    openAddEditForm();
+                        // Öppnar modal för att ändra info
+                })
+
+                    // Knapp för att radera uppdrag/event
+                $('#btnDelete').click(function () {
+                    if (selectedEvent != null) {
+                        if (confirm('Menar du allvar?')) {
+                            let newSelectedEvent = Object.assign({}, selectedEvent)
+                            selectedEvent = null
+                            // Ajax-Kod för att radera uppdrag/event
+                            $.ajax({        // Json-req för att radera eventet
+                                type: "POST",
+                                url: '/Missions/DeleteEvent',
+                                data: { 'eventID': newSelectedEvent.eventID },
+                                success: function (data) {
+                                    if (data.status) {
+                                        selectedEvent = null;
+                                        FetchResources();       // Refresha kalendern
+                                        $('#myModal').modal('hide');    // Stänger modalen efteråt
+                                    }
+                                },
+                                error: function () { // Felmeddelande
+                                    alert('Gick inte att radera tyvärr')
+                                }
+                            })
+                        }
+                    }
+
+                })
+                    // Kod för att använda Bootstraps Datepicker
+                $('#dtp1,#dtp2').datetimepicker({
+                                                // för att snyggt välja start/slut-tid
+                    format: 'DD/MM/YYYY HH:mm'  // Datumformat, ändrade i webconfig för att det ska stöttas
+                });
+
+                // Kod för att dölja/visa sluttids-rutan
+                $('#chkIsFullDay').change(function () { // Om checkad döljs sluttiden
+                    if ($(this).is(':checked')) {
+                        $('#divEndDate').hide(); }
+                    else { $('#divEndDate').show(); }   // Om ej checkad så visas sluttiden
+                });
+
+                // Öppnar modal för att ändra informationen
+                function openAddEditForm() {
+                    if (selectedEvent != null) {
+                        $('#hdEventID').val(selectedEvent.eventID);
+                        $('#txtSubject').val(selectedEvent.title);
+                        $('#txtStart').val(selectedEvent.start.format('DD/MM/YYYY HH:mm'));
+                        $('#chcIsFullDay').prop("checked", selectedEvent.allday || false);
+                        $('#chcIsFullDay').change();
+                        $('#txtStop').val(selectedEvent.end != null ? selectedEvent.end.format('DD/MM/YYYY HH:mm') : '');
+                        $('#txtDescription').val(selectedEvent.description);
+                        $('#ddThemeColor').val(selectedEvent.color);
+                        $('#ddWorker').val(selectedEvent.resourceId);
+                    }
+                    $('#myModal').modal('hide');
+                    $('#myModalSave').modal();
+                }
+
+                // Knapp för att spara ändringar som gjorts
+                $('#btnSave').click(function () {
+                    // Validera innehåll
+                    if ($('#txtSubject').val().trim() == "") {
+                        alert('Du glömde fylla i Titeln');
+                        return;
+                    }
+                    if ($('#txtStart').val().trim() == "") {
+                        alert('Du måste fylla i start-tid');
+                        return;
+                    }
+                    if ($('#chkIsFullDay').is(':checked') == false && $('#txtStop').val().trim() == "") {
+                        alert('Du måste fylla i slut-tid');
+                        return;
+                    }
+                    else {
+                        var startDate = moment($('#txtStart').val(), "DD/MM/YYYY HH:mm").toDate();
+                        var endDate = moment($('#txtStop').val(), "DD/MM/YYYY HH:mm").toDate();
+                        if (startDate > endDate) {
+                            alert('Uppdraget kan inte sluta före det börjar... Fattar du väl?');
+                            return;
+                        }
+                    }
+                    // Datan som ska sparas
+                    var data = {
+                        MissionID: $('#hdEventID').val(),
+                        Title: $('#txtSubject').val().trim(),
+                        StartTime: $('#txtStart').val().trim(),
+                        EndTime: $('#chkIsFullDay').is(':checked') ? null : $('#txtStop').val().trim(),
+                        JobDescription: $('#txtDescription').val(),
+                        FieldOfWork: $('#ddThemeColor').val(),
+                        IsFullDay: $('#chkIsFullDay').is(':checked'),
+                        Partner: $('#ddWorker').val().trim()
+                    }
+
+                    // Kalla funktionen för att spara på servern
+                    SaveEvent(data);
+                })
+
+
+                // Ajax-kod för att spara ändringar till eventet
+                function SaveEvent(data) {
+                    $.ajax({        // Json-req för att spara ändringar till eventet
+                        type: "POST",
+                        url: '/Missions/SaveEvent',
+                        data: data,
+                        success: function (data) {
+                            if (data.status) {
+                                //FetchResources(); // Refresha kalendern
+                                $('#myModalSave').modal('hide');    // Stänger modalen efteråt
+                            }
+                        },
+                        error: function () { // Felmeddelande
+                            alert('Gick inte att spara tyvärr');
+                        }
+                    })
+                }
+
+            }
+        })
+    </script>
+}
+
+
+<style>
+    #wrap {
+        width: 1100px;
+        margin: 0 auto;
+    }
+
+    #external-events {
+        float: left;
+        width: 150px;
+        padding: 0 10px;
+        border: 1px solid #ccc;
+        background: #eee;
+        text-align: left;
+    }
+
+        #external-events h4 {
+            font-size: 16px;
+            margin-top: 0;
+            padding-top: 1em;
+        }
+
+        #external-events .fc-event {
+            margin: 10px 0;
+            cursor: pointer;
+        }
+
+        #external-events p {
+            margin: 1.5em 0;
+            font-size: 11px;
+            color: #666;
+        }
+
+            #external-events p input {
+                margin: 0;
+                vertical-align: middle;
+            }
+
+    #calendar {
+        float: right;
+        width: 900px;
+    }
+</style>
+
+
+<div id='wrap'>
+    <div id='external-events'>
+        <h4>Dagens uppdrag</h4>
+        <div class='fc-event'>Enligt ordinarie schema</div>
+        <div class='fc-event'>Gröndal</div>
+        <div class='fc-event'>Arlöv</div>
+        <p>
+            <input type='checkbox' id='drop-remove' />
+            <label for='drop-remove'>Radera efter dragning</label>
+        </p>
+    </div>
+    <div id="calendar"></div>
+    <div style='clear:both'></div>
+</div>
+
+<p>
+    @Html.ActionLink("Lägg till anställd", "Create", null, new { @class = "btn btn-primary" })
+</p>
+
